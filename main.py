@@ -8,8 +8,8 @@ from pandas import DataFrame
 import numpy as np
 import uvicorn
 from pydantic import BaseModel
-from src.utils import load_artifact, process_data, get_cat_features
-from src.model import inference
+from data import load_artifact, process_data, get_cat_features
+from model import inference
 
 # Set up DVC on Heroku
 if "DYNO" in os.environ and os.path.isdir(".dvc"):
