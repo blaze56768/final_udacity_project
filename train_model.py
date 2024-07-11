@@ -4,7 +4,7 @@ Script to train the machine learning model.
 
 import logging
 from sklearn.model_selection import train_test_split
-from data import load_data, process_data, get_categorical_features
+from data import load_data, process_data, get_cat_features
 from model import train_model, compute_model_metrics, inference
 import joblib
 
@@ -21,11 +21,11 @@ train, test = train_test_split(census_data, test_size=0.20)
 # Prepare the data for model training
 logging.info("Preprocessing data")
 X_train, y_train, encoder, lb = process_data(
-    train, categorical_features=get_categorical_features(), label="salary", training=True
+    train, categorical_features=get_cat_features(), label="salary", training=True
 )
 
 X_test, y_test, _, _ = process_data(
-    test, categorical_features=get_categorical_features(), label="salary",
+    test, categorical_features=get_cat_features(), label="salary",
      training=False, encoder=encoder, lb=lb)
 
 

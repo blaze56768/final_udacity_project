@@ -87,7 +87,7 @@ def process_data(
     return X, y, encoder, lb
 
 
-def get_categorical_features():
+def get_cat_features():
     """ Return a list of categorical features"""
     
     categorical_features = [
