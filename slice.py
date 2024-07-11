@@ -10,11 +10,11 @@ from model import compute_model_metrics
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
 
-DATA_PATH = 'data/census_cleaned.csv'
-ARTIFACTS_PATH = 'model'
+DATASET_FILE = 'data/census_cleaned.csv'
+MODEL_DIRECTORY = 'model'
 
-# Categorical features
-cat_features = [
+# Features representing demographic categories
+demographic_features = [
     "workclass",
     "education",
     "marital-status",
@@ -25,42 +25,44 @@ cat_features = [
     "native-country",
 ]
 
-def test_performance():
-    """ Check performance on categorical features """
+def evaluate_model_slices():
+    """ Assess model performance across different demographic subgroups """
 
-    data = pd.read_csv(DATA_PATH)
-    _, test = train_test_split(data, test_size=0.20)
+    dataset = pd.read_csv(DATASET_FILE)
+    _, evaluation_set = train_test_split(dataset, test_size=0.20)
 
-    rf = load_artifact(os.path.join(ARTIFACTS_PATH, 'model.pkl'))
-    encoder = load_artifact(os.path.join(ARTIFACTS_PATH, 'encoder.pkl'))
-    lb = load_artifact(os.path.join(ARTIFACTS_PATH, 'lb.pkl'))
+    trained_model = load_artifact(os.path.join(MODEL_DIRECTORY, 'model.pkl'))
+    feature_encoder = load_artifact(os.path.join(MODEL_DIRECTORY, 'encoder.pkl'))
+    label_binarizer = load_artifact(os.path.join(MODEL_DIRECTORY, 'lb.pkl'))
 
-    slice_metrics = []
+    slice_performance = []
 
-    for feature in cat_features:
-        for cls in test[feature].unique():
-            df_temp = test[test[feature] == cls]
+    for feature in demographic_features:
+        for category in evaluation_set[feature].unique():
+            subset = evaluation_set[evaluation_set[feature] == category]
 
-            X_test, y_test, _, _ = process_data(
-                df_temp,
-                cat_features,
+            X_eval, y_eval, _, _ = process_data(
+                subset,
+                demographic_features,
                 label="salary",
-                encoder=encoder,
-                lb=lb,
+                encoder=feature_encoder,
+                lb=label_binarizer,
                 training=False)
 
-            y_pred = rf.predict(X_test)
+            y_predicted = trained_model.predict(X_eval)
 
-            precision, recall, fbeta = compute_model_metrics(y_test, y_pred)
-            row = f"{feature} - {cls} :: Precision: {precision: .2f}. Recall: {recall: .2f}. Fbeta: {fbeta: .2f}"
-            slice_metrics.append(row)
+            precision, recall, fbeta = compute_model_metrics(y_eval, y_predicted)
+            result = f"{feature} - {category} :: Precision: {precision: .2f}. Recall: {recall: .2f}. Fbeta: {fbeta: .2f}"
+            slice_performance.append(result)
 
-            with open('slice_metrics/slice_output.txt', 'w') as file:
-                for row in slice_metrics:
-                    file.write(row + '\n')
+            with open('slice_metrics/slice_output.txt', 'w') as output_file:
+                for result in slice_performance:
+                    output_file.write(result + '\n')
 
-    logging.info("Performance metrics for slices saved to slice_output.txt")
+    logging.info("Slice-wise performance metrics saved to slice_output.txt")
 
 
 if __name__ == '__main__':
-    test_performance()
+    evaluate_model_slices()
+
+

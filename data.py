@@ -7,14 +7,14 @@ import numpy as np
 from sklearn.preprocessing import LabelBinarizer, OneHotEncoder
 
 def load_data(path):
-    "Import data from specified path and return a dataframe"
+    "Load data from the given path"
 
     df =  pd.read_csv(path)
     return df
 
 
 def load_artifact(artifact_path):
-    "Load artifact"
+    "Import model artifacts"
 
     return joblib.load(artifact_path)
 
@@ -87,10 +87,10 @@ def process_data(
     return X, y, encoder, lb
 
 
-def get_cat_features():
+def get_categorical_features():
     """ Return a list of categorical features"""
     
-    cat_features = [
+    categorical_features = [
     "workclass",
     "education",
     "marital-status",
@@ -101,4 +101,4 @@ def get_cat_features():
     "native-country",
     ]
 
-    return cat_features
+    return categorical_features

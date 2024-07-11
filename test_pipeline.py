@@ -13,8 +13,8 @@ from sklearn.model_selection import train_test_split
 logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
 
 
-DATA_PATH = 'data/census_cleaned.csv'
-MODEL_PATH = 'model/model.pkl'
+CENSUS_DATASET_PATH = 'data/census_cleaned.csv'
+TRAINED_MODEL_PATH = 'model/model.pkl'
 
 cat_features = [
     "workclass",
@@ -27,35 +27,35 @@ cat_features = [
     "native-country",
 ]
 
-@pytest.fixture(name='data')
-def data():
+@pytest.fixture(name='census_data')
+def census_data():
     """
-    Fixture will be used by the unit tests.
+    Fixture to provide census data for unit tests.
     """
-    yield pd.read_csv(DATA_PATH)
+    yield pd.read_csv(CENSUS_DATASET_PATH)
 
 
-def test_load_data(data):
-    
-    """ Check the data received """
-
-    assert isinstance(data, pd.DataFrame)
-    assert data.shape[0]>0
-    assert data.shape[1]>0
-
-
-def test_model():
-
-    """ Check model type """
-
-    model = load_artifact(MODEL_PATH)
-    assert isinstance(model, RandomForestClassifier)
+def test_census_data_loading(census_data):
+    """
+    Verify the integrity of the loaded census data.
+    """
+    assert isinstance(census_data, pd.DataFrame)
+    assert census_data.shape[0] > 0
+    assert census_data.shape[1] > 0
 
 
-def test_process_data(data):
+def test_model_type():
+    """
+    Ensure the loaded model is of the correct type.
+    """
+    trained_model = load_artifact(TRAINED_MODEL_PATH)
+    assert isinstance(trained_model, RandomForestClassifier)
 
-    """ Test the data split """
 
-    train, _ = train_test_split(data, test_size=0.20)
-    X, y, _, _ = process_data(train, cat_features, label='salary')
-    assert len(X) == len(y)
+def test_data_processing(census_data):
+    """
+    Validate the data processing and splitting procedure.
+    """
+    training_set, _ = train_test_split(census_data, test_size=0.20)
+    X_processed, y_processed, _, _ = process_data(training_set, cat_features, label='salary')
+    assert len(X_processed) == len(y_processed)
